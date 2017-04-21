@@ -1,9 +1,5 @@
 package com.saperrpg.Parameters;
 
-/**
- * Created by Djelu on 28.01.2017.
- */
-
 public class TexturesId {
     public static int PLAYER;
 

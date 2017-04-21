@@ -1,13 +1,9 @@
-package com.saperrpg.JA;
+package com.saperrpg.Field;
 
 import com.saperrpg.Parameters.TexturesId;
 
-/**
- * Created by Djelu on 31.01.2017.
- */
-
-public class JA {
-    public JAType type;
+public class Field {
+    public FieldType type;
     public Layer[] layers;
     public boolean opened;
     public boolean flag;
@@ -17,7 +13,7 @@ public class JA {
     public int saperNum;
     public boolean canMine;
 
-    public JA(JAType type, Layer[] layers) {
+    public Field(FieldType type, Layer[] layers) {
         this.type = type;
         this.layers = layers;
         saperNum=0;
@@ -27,7 +23,7 @@ public class JA {
     }
 
     public void createMoster(){
-        type = JAType.MONSTER;
+        type = FieldType.MONSTER;
         layers[1].id = TexturesId.MON0;
     }
 

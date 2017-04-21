@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class FileUtils {
+public final class FileUtils {
 
     public static String readTextFromRaw(Context context, int resourceId) {
         StringBuilder stringBuilder = new StringBuilder();

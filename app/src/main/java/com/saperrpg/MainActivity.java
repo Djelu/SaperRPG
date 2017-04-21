@@ -8,13 +8,15 @@ import android.graphics.Point;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.MotionEvent;
-import android.widget.Toast;
+
+import com.saperrpg.Parameters.Pars;
 
 public class MainActivity extends Activity {
 
     private GLSurfaceView glSurfaceView;
-    public static Point view;
     private OpenGLRenderer openGLRenderer;
+
+    public static Point view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +27,8 @@ public class MainActivity extends Activity {
         }
         view = new Point();
         getWindowManager().getDefaultDisplay().getSize(view);
+        Pars.width = view.x;
+        Pars.height= view.y;
 
         glSurfaceView = new GLSurfaceView(this);
         glSurfaceView.setEGLContextClientVersion(2);
@@ -60,17 +64,15 @@ public class MainActivity extends Activity {
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN: {
                 openGLRenderer.touchXY(x2,y2);
-                Toast.makeText(this, Integer.toString((int)x2)+" : "+Integer.toString((int)y2)+" || "
-                        +Integer.toString((int)(x2-view.x/2))+" : "+Integer.toString((int)(view.y/2+17-y2))
-                        , Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, Integer.toString((int)x2)+" : "+Integer.toString((int)y2)+" || "
+//                        +Integer.toString((int)(x2-view.x/2))+" : "+Integer.toString((int)(view.y/2+17-y2))
+//                        , Toast.LENGTH_SHORT).show();
             }   break;
             case MotionEvent.ACTION_MOVE: {
                 openGLRenderer.changeXY((x2-x1)/k,(y2-y1)/k);
             }   break;
-            case MotionEvent.ACTION_UP:{
-            }   break;
-            case MotionEvent.ACTION_CANCEL:
-                break;
+            case MotionEvent.ACTION_UP: break;
+            case MotionEvent.ACTION_CANCEL: break;
         }
         x1 = x2;
         y1 = y2;

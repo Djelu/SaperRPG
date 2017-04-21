@@ -1,8 +1,4 @@
-package com.saperrpg.JA;
-
-/**
- * Created by Djelu on 16.02.2017.
- */
+package com.saperrpg.Field;
 
 public class UseObj {
     public int[] id;

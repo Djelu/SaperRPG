@@ -2,10 +2,10 @@ package com.saperrpg;
 
 import android.graphics.Point;
 
-import com.saperrpg.JA.JA;
-import com.saperrpg.JA.JAType;
-import com.saperrpg.JA.Layer;
-import com.saperrpg.JA.UseObj;
+import com.saperrpg.Field.Field;
+import com.saperrpg.Field.FieldType;
+import com.saperrpg.Field.Layer;
+import com.saperrpg.Field.UseObj;
 import com.saperrpg.Parameters.Pars;
 import com.saperrpg.Parameters.TexturesId;
 import com.saperrpg.RPG.GG;
@@ -28,6 +28,8 @@ import static com.saperrpg.Parameters.Pars.countObjs;
 import static com.saperrpg.Parameters.Pars.drawStartH;
 import static com.saperrpg.Parameters.Pars.drawStartW;
 import static com.saperrpg.Parameters.Pars.fieldsStep;
+import static com.saperrpg.Parameters.Pars.freeMinesDistH;
+import static com.saperrpg.Parameters.Pars.freeMinesDistW;
 import static com.saperrpg.Parameters.Pars.halfCountLandH;
 import static com.saperrpg.Parameters.Pars.halfCountLandW;
 import static com.saperrpg.Parameters.Pars.halfCountMapH;
@@ -38,18 +40,15 @@ import static com.saperrpg.Parameters.Pars.nachH;
 import static com.saperrpg.Parameters.Pars.nachW;
 import static com.saperrpg.Parameters.Pars.sqWidth;
 
-/**
- * Created by Djelu on 15.02.2017.
- */
-
 public class Game {
-    static GG gg;
-    static JA[][] map;
+    private GG gg;
+    private Field[][] map;
     static UseObj[] intButtons;
     static UseObj[] invSlots;
     static Layer invFon;
 
     public Game(int countMapH, int countMapW, int countLandH, int countLandW) {
+
         Random random = new Random();
 
         calculateLandParameters(countLandW,countLandH);
@@ -60,9 +59,31 @@ public class Game {
 
         invSlots   = new UseObj[slotsCount];
         intButtons = new UseObj[buttonsCount];
-        map = new JA[countMapH][countMapW];
+//        map = new Field[countMapH][countMapW];
         gg  = new GG(new Point(random.nextInt(2)+countMapW/2-1,
                                random.nextInt(2)+countMapH/2-1 ));
+    }
+
+    GG getGG() {
+        return gg;
+    }
+    void setGg(GG gg) {
+        this.gg = gg;
+    }
+
+    Field[][] getMap() {
+        return map;
+    }
+    void setMap(Field[][] map) {
+        this.map = map;
+    }
+
+    void sleep(){
+
+    }
+    void prepareGG(){
+        map[gg.mapPos.y][gg.mapPos.x].type= FieldType.GG;
+        map[gg.mapPos.y][gg.mapPos.x].layers[1].id = TexturesId.PLAYER;
     }
 
     void touchXY(float x, float y){
@@ -82,44 +103,39 @@ public class Game {
                     intButtons[2].change();
                     sleep();
                 }else
-                //в пределах карты
-                if((x>=nachW)&&(x<=nachW+countLandW*SqWidthPlusStep- fieldsStep)&&(y>=nachH)&&(y<=nachH+countLandH*SqWidthPlusStep- fieldsStep)){
-                    float ggNachW=nachW+gg.landPos.x*SqWidthPlusStep;
-                    float ggNachH=nachH+gg.landPos.y*SqWidthPlusStep;
-                    int maxCount;
-                    float diffX=x-ggNachW;
-                    int resX=-1;
-                    int resY=-1;
-                    if(diffX!=0){
-                        if(diffX>0) { if((maxCount=countLandW-gg.landPos.x)>0) result.x=gg.landPos.x+((resX=getVecCountUp  (x,ggNachW-fieldsStep,0,maxCount))==-1?0:resX);}
-                                else{ if((maxCount=         1+gg.landPos.x)>0) result.x=gg.landPos.x-((resX=getVecCountDown(x,ggNachW           ,1,maxCount))==-1?0:resX);}
+                    //в пределах карты
+                    if((x>=nachW)&&(x<=nachW+countLandW*SqWidthPlusStep- fieldsStep)&&(y>=nachH)&&(y<=nachH+countLandH*SqWidthPlusStep- fieldsStep)){
+                        float ggNachW=nachW+gg.landPos.x*SqWidthPlusStep;
+                        float ggNachH=nachH+gg.landPos.y*SqWidthPlusStep;
+                        int maxCount;
+                        float diffX=x-ggNachW;
+                        int resX=-1;
+                        int resY=-1;
+                        if(diffX!=0){
+                            if(diffX>0) { if((maxCount=countLandW-gg.landPos.x)>0) result.x=gg.landPos.x+((resX=getVecCountUp  (x,ggNachW-fieldsStep,0,maxCount))==-1?0:resX);}
+                            else{ if((maxCount=         1+gg.landPos.x)>0) result.x=gg.landPos.x-((resX=getVecCountDown(x,ggNachW           ,1,maxCount))==-1?0:resX);}
+                        }
+                        float diffY=y-ggNachH;
+                        if(diffY!=0){
+                            if(diffY>0) { if((maxCount=countLandH-gg.landPos.y)>0) result.y=gg.landPos.y+((resY=getVecCountUp  (y,ggNachH-fieldsStep,0,maxCount))==-1?0:resY);}
+                            else{ if((maxCount=         1+gg.landPos.y)>0) result.y=gg.landPos.y-((resY=getVecCountDown(y,ggNachH           ,1,maxCount))==-1?0:resY);}
+                        }
+                        if((resX!=-1)&&(resY!=-1)) {
+                            result.set(result.x+drawStartW,result.y+drawStartH);
+                            checkTargetAndWork(result);
+                        }
                     }
-                    float diffY=y-ggNachH;
-                    if(diffY!=0){
-                        if(diffY>0) { if((maxCount=countLandH-gg.landPos.y)>0) result.y=gg.landPos.y+((resY=getVecCountUp  (y,ggNachH-fieldsStep,0,maxCount))==-1?0:resY);}
-                                else{ if((maxCount=         1+gg.landPos.y)>0) result.y=gg.landPos.y-((resY=getVecCountDown(y,ggNachH           ,1,maxCount))==-1?0:resY);}
-                    }
-                    if((resX!=-1)&&(resY!=-1)) {
-                        result.set(result.x+drawStartW,result.y+drawStartH);
-                        checkTargetAndWork(result);
-                    }
-                }
         }
     }
-
-    void sleep(){
-
+    private int getVecCountUp(float norm, float nach, int minCount, int maxCount){
+        int result=-1;
+        for(int i = minCount; i< maxCount; i++)
+            if(norm>(nach+= fieldsStep)){
+                if(norm<=(nach+=sqWidth)){ result=i; break; }
+            }else { result=-1; break; }
+        return result;
     }
-
-     int getVecCountUp  (float norm, float nach,int minCount, int maxCount){
-         int result=-1;
-         for(int i = minCount; i< maxCount; i++)
-             if(norm>(nach+= fieldsStep)){
-                 if(norm<=(nach+=sqWidth)){ result=i; break; }
-             }else { result=-1; break; }
-         return result;
-     }
-     int getVecCountDown(float norm, float nach,int minCount, int maxCount){
+    private int getVecCountDown(float norm, float nach, int minCount, int maxCount){
         int result=-1;
         for(int i = minCount; i< maxCount; i++)
             if(norm<(nach-= fieldsStep)){
@@ -127,18 +143,18 @@ public class Game {
             }else { result=-1; break; }
         return result;
     }
-    void checkTargetAndWork(Point point){
-        if(map[point.y][point.x].type != JAType.GG) {//если цель не гг двигаемся
+
+    private void checkTargetAndWork(Point point){
+        if(map[point.y][point.x].type != FieldType.GG) {//если цель не гг двигаемся
             if(!intButtons[1].used)//если не собираемся ставить капкан
                 moveTo(point);
             else
                 if(!map[point.y][point.x].opened) map[point.y][point.x].doFlag();
         }
     }
-
-    void moveTo(Point point){
+    private void moveTo(Point point){
         //узнаём быстрейший путь, разбиваем на отрезки и для каждого вызываем:
-        if(map[point.y][point.x].type==JAType.MONSTER){
+        if(map[point.y][point.x].type== FieldType.MONSTER){
             map[point.y][point.x].layers[1].visible=true ;
             map[point.y][point.x].layers[2].visible=false;
             gg.attack(map[point.y][point.x].RPG);
@@ -150,8 +166,8 @@ public class Game {
         }
     }
 
-    void writeNums(Point point){
-        writeNums(point, new Point(0,0), new Point(countMapW,countMapH));
+    void writeNums(){
+        writeNums(gg.mapPos, new Point(0,0), new Point(countMapW,countMapH));
     }
     void writeNums(Point point, Point leftTopXY, Point rightBotXY){
         map[point.y][point.x].opened=true;
@@ -179,18 +195,23 @@ public class Game {
             }break;
         }
     }
-    void setNum(Point point, Point leftTopXY, Point rightBotXY){
+    private void setNum(Point point, Point leftTopXY, Point rightBotXY){
         map[point.y][point.x].saperNum=0;
-        if((point.y-1>= leftTopXY.y)&&(point.x-1>= leftTopXY.x)&&(map[point.y-1][point.x-1].type==JAType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y  >= leftTopXY.y)&&(point.x-1>= leftTopXY.x)&&(map[point.y  ][point.x-1].type==JAType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y-1>= leftTopXY.y)&&(point.x  >= leftTopXY.x)&&(map[point.y-1][point.x  ].type==JAType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y-1>= leftTopXY.y)&&(point.x+1< rightBotXY.x)&&(map[point.y-1][point.x+1].type==JAType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y+1< rightBotXY.y)&&(point.x-1>= leftTopXY.x)&&(map[point.y+1][point.x-1].type==JAType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y+1< rightBotXY.y)&&(point.x+1< rightBotXY.x)&&(map[point.y+1][point.x+1].type==JAType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y  >= leftTopXY.y)&&(point.x+1< rightBotXY.x)&&(map[point.y  ][point.x+1].type==JAType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y+1< rightBotXY.y)&&(point.x  >= leftTopXY.x)&&(map[point.y+1][point.x  ].type==JAType.MONSTER)) map[point.y][point.x].saperNum++;
+        if((point.y-1>= leftTopXY.y)&&(point.x-1>= leftTopXY.x)&&(map[point.y-1][point.x-1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+        if((point.y  >= leftTopXY.y)&&(point.x-1>= leftTopXY.x)&&(map[point.y  ][point.x-1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+        if((point.y-1>= leftTopXY.y)&&(point.x  >= leftTopXY.x)&&(map[point.y-1][point.x  ].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+        if((point.y-1>= leftTopXY.y)&&(point.x+1< rightBotXY.x)&&(map[point.y-1][point.x+1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+        if((point.y+1< rightBotXY.y)&&(point.x-1>= leftTopXY.x)&&(map[point.y+1][point.x-1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+        if((point.y+1< rightBotXY.y)&&(point.x+1< rightBotXY.x)&&(map[point.y+1][point.x+1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+        if((point.y  >= leftTopXY.y)&&(point.x+1< rightBotXY.x)&&(map[point.y  ][point.x+1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+        if((point.y+1< rightBotXY.y)&&(point.x  >= leftTopXY.x)&&(map[point.y+1][point.x  ].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
     }
 
+    void createMineField(Point leftTopXY, Point rightBotXY, int countMines){
+        Point antiLeftTopXY = new Point(gg.mapPos.x-freeMinesDistW,gg.mapPos.y-freeMinesDistH);
+        Point antiRightBotXY= new Point(gg.mapPos.x+freeMinesDistW,gg.mapPos.y+freeMinesDistH);
+        createMineField(leftTopXY,rightBotXY,antiLeftTopXY,antiRightBotXY,countMines);
+    }
     void createMineField(Point leftTopXY, Point rightBotXY, Point antiLeftTopXY, Point antiRightBotXY, int countMines){
         Random random = new Random();
         int xSize = rightBotXY.x-leftTopXY.x;
@@ -226,4 +247,7 @@ public class Game {
          halfCountMapH=countMapH/2;
          halfCountMapW=countMapW/2;
     }
+
+
+
 }

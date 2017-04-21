@@ -2,14 +2,10 @@ package com.saperrpg.RPG;
 
 import android.graphics.Point;
 
-import com.saperrpg.JA.JA;
-import com.saperrpg.JA.JAType;
+import com.saperrpg.Field.Field;
+import com.saperrpg.Field.FieldType;
 import com.saperrpg.Parameters.Pars;
 import com.saperrpg.Parameters.TexturesId;
-
-/**
- * Created by Djelu on 15.02.2017.
- */
 
 public class GG extends RPG {
     public Point mapPos;
@@ -24,11 +20,11 @@ public class GG extends RPG {
 
     }
 
-    public void move(Point point, JA[][] map){
+    public void move(Point point, Field[][] map){
         //передвигаем гг
-        map[mapPos.y][mapPos.x].type = JAType.EMPTY;
+        map[mapPos.y][mapPos.x].type = FieldType.EMPTY;
         map[mapPos.y][mapPos.x].layers[1].id= TexturesId.EMPTY;
-        map[point.y][point.x].type =JAType.GG;
+        map[point.y][point.x].type = FieldType.GG;
         map[point.y][point.x].layers[1].id=TexturesId.PLAYER;
         //передвигаем видимость
         int vy=point.y-mapPos.y;

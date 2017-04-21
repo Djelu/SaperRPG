@@ -1,10 +1,9 @@
 package com.saperrpg.Parameters;
 
-/**
- * Created by Djelu on 15.02.2017.
- */
-
 public class Pars {
+    static public float width;
+    static public float height;
+
     static public float buttonsStep;
     static public float fieldsStep;
     static public float slotsStep;

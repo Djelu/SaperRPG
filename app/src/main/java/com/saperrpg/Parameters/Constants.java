@@ -1,9 +1,5 @@
 package com.saperrpg.Parameters;
 
-/**
- * Created by Djelu on 15.02.2017.
- */
-
 public class Constants {
 
     public final static int POSITION_COUNT = 3;
@@ -16,6 +12,7 @@ public class Constants {
     public final static int slotsCount = 15;
     public final static int buttonsCount = 3;
     public final static int mapLayersCount =  3;
+    public final static float mapLayersStep = 0.001f;
     public final static float panelH = 38;
     public final static float hz     = 17;
     public final static int INV_COUNT = 15;

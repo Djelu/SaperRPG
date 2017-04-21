@@ -13,7 +13,7 @@ import static android.opengl.GLES20.glBindTexture;
 import static android.opengl.GLES20.glDeleteTextures;
 import static android.opengl.GLES20.glGenTextures;
 
-public class TextureUtils {
+public final class TextureUtils {
 
     public static int loadTexture(Context context, int resourceId) {
         // создание объекта текстуры

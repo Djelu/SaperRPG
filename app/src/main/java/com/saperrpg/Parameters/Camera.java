@@ -1,9 +1,5 @@
 package com.saperrpg.Parameters;
 
-/**
- * Created by Djelu on 15.02.2017.
- */
-
 public class Camera {
     // точка положения камеры
     public static float eyeX = 0;

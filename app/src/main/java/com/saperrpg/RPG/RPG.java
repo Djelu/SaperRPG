@@ -1,9 +1,5 @@
 package com.saperrpg.RPG;
 
-/**
- * Created by Djelu on 14.02.2017.
- */
-
 public class RPG {
     private Stats stats;
     private Stats[] loot;
