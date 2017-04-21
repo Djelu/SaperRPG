@@ -1,5 +1,7 @@
 package com.saperrpg.Parameters;
 
+import static com.saperrpg.Parameters.Constants.panelH;
+
 public class Pars {
     static public float width;
     static public float height;
@@ -48,7 +50,8 @@ public class Pars {
     static public float varW;
     static public float varH;
 
-    public static void calculateMapParameters(float width, float height, float sqWidth, float fieldsStep, float scaleNumX, float scaleNumY){
+    public static void calculateMapParameters(float sqWidth, float fieldsStep, float scaleNumX, float scaleNumY){
+        height = (nachHeight = height)-panelH;
         halfW = width /2;
         halfH = height/2;
         Pars.sqWidth = sqWidth;

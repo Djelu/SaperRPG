@@ -9,14 +9,10 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.MotionEvent;
 
-import com.saperrpg.Parameters.Pars;
-
 public class MainActivity extends Activity {
 
     private GLSurfaceView glSurfaceView;
     private OpenGLRenderer openGLRenderer;
-
-    public static Point view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,14 +21,12 @@ public class MainActivity extends Activity {
             finish();
             return;
         }
-        view = new Point();
+        Point view = new Point();
         getWindowManager().getDefaultDisplay().getSize(view);
-        Pars.width = view.x;
-        Pars.height= view.y;
 
         glSurfaceView = new GLSurfaceView(this);
         glSurfaceView.setEGLContextClientVersion(2);
-        glSurfaceView.setRenderer(openGLRenderer = new OpenGLRenderer(this));
+        glSurfaceView.setRenderer(openGLRenderer = new OpenGLRenderer(this,view.x,view.y));
         setContentView(glSurfaceView);
     }
 

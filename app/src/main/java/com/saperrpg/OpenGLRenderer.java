@@ -64,6 +64,8 @@ import static com.saperrpg.Parameters.Constants.hz;
 import static com.saperrpg.Parameters.Constants.mapLayersCount;
 import static com.saperrpg.Parameters.Constants.mapLayersStep;
 import static com.saperrpg.Parameters.Constants.slotsCount;
+import static com.saperrpg.Parameters.Pars.calculateIntParameters;
+import static com.saperrpg.Parameters.Pars.calculateInvParameters;
 import static com.saperrpg.Parameters.Pars.calculateMapParameters;
 import static com.saperrpg.Parameters.Pars.countLandH;
 import static com.saperrpg.Parameters.Pars.countLandW;
@@ -77,7 +79,6 @@ import static com.saperrpg.Parameters.Pars.fps;
 import static com.saperrpg.Parameters.Pars.halfCountLandH;
 import static com.saperrpg.Parameters.Pars.halfCountLandW;
 import static com.saperrpg.Parameters.Pars.halfW;
-import static com.saperrpg.Parameters.Pars.height;
 import static com.saperrpg.Parameters.Pars.nachH;
 import static com.saperrpg.Parameters.Pars.nachHeight;
 import static com.saperrpg.Parameters.Pars.nachW;
@@ -90,7 +91,6 @@ import static com.saperrpg.Parameters.Pars.sqWidthDiv3;
 import static com.saperrpg.Parameters.Pars.sqWidthDiv6;
 import static com.saperrpg.Parameters.Pars.varH;
 import static com.saperrpg.Parameters.Pars.varW;
-import static com.saperrpg.Parameters.Pars.width;
 import static com.saperrpg.Parameters.Projection.far;
 import static com.saperrpg.Parameters.Projection.near;
 
@@ -102,7 +102,6 @@ public class OpenGLRenderer implements Renderer{
     private int uMatrixLocation;
     private int programId;
 
-    private Vertices vertices;
     private FloatBuffer vertexData;
     private float[] mProjectionMatrix = new float[16];
     private float[] mViewMatrix = new float[16];
@@ -112,8 +111,10 @@ public class OpenGLRenderer implements Renderer{
     private Game game;
     private Random random;
 
-    public OpenGLRenderer(Context context) {
+    public OpenGLRenderer(Context context, float width, float height) {
         this.context = context;
+        Pars.height = height;
+        Pars.width = width;
     }
 
     @Override
@@ -125,9 +126,9 @@ public class OpenGLRenderer implements Renderer{
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-        calculateMapParameters(width,height,50,1,0.3f,0.3f);//квадраты карты (ширина,шаг,ширина цифр,высота цифр)
-        Pars.calculateIntParameters(100,0);//кнопки (ширина,шаг)
-        Pars.calculateInvParameters( 70,7);//слоты инвентаря (ширина,шаг)
+        calculateMapParameters(50,1,0.3f,0.3f);//квадраты карты (ширина,шаг,ширина цифр,высота цифр)
+        calculateIntParameters(100,0);//кнопки (ширина,шаг)
+        calculateInvParameters( 70,7);//слоты инвентаря (ширина,шаг)
 
         createAndUseProgram();
         getLocations();
@@ -151,12 +152,12 @@ public class OpenGLRenderer implements Renderer{
         createProjectionMatrix(width, height);
         Pars.width  = width;
         Pars.height = height;
-        calculateMapParameters(width, height, sqWidth, fieldsStep, scaleNumX, scaleNumY);
+        calculateMapParameters(sqWidth, fieldsStep, scaleNumX, scaleNumY);
         bindMatrix();
     }
 
     private void prepareVertices(){
-        vertices = new Vertices((countMapObjs+slotsCount+buttonsCount+1)*VERTICES_COUNT);
+        Vertices vertices = new Vertices((countMapObjs + slotsCount + buttonsCount + 1) * VERTICES_COUNT);
         nachW = -(sqWidth+fieldsStep)*(countLandW/2);
         nachH = -(sqWidth+fieldsStep)*(countLandH/2);
 

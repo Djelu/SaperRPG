@@ -51,8 +51,8 @@ public class Game {
 
         Random random = new Random();
 
-        calculateLandParameters(countLandW,countLandH);
-        calculateMapParameters (countMapW ,countMapH );
+        calculateLandWHParameters(countLandW,countLandH);
+        calculateMapWHParameters(countMapW ,countMapH );
 
         drawStartH=(halfCountMapH-1)-(halfCountLandH-1);
         drawStartW=(halfCountMapW-1)-(halfCountLandW-1);
@@ -232,7 +232,7 @@ public class Game {
             points[r]=points[size];
         }
     }
-    private void calculateLandParameters(int countLandW, int countLandH){
+    private void calculateLandWHParameters(int countLandW, int countLandH){
         Pars.countLandH=countLandH;
         Pars.countLandW=countLandW;
          halfCountLandH=countLandH/2;
@@ -241,7 +241,7 @@ public class Game {
         countMapPlusInvObjs = countMapObjs + slotsCount + 1;
         countObjs = countMapPlusInvObjs + buttonsCount;
     }
-    private void calculateMapParameters(int countMapW, int countMapH){
+    private void calculateMapWHParameters(int countMapW, int countMapH){
         Pars.countMapH=countMapH;
         Pars.countMapW=countMapW;
          halfCountMapH=countMapH/2;
