@@ -136,7 +136,7 @@ public class OpenGLRenderer implements Renderer{
         game = new Game(50,50,10,10);//(высота,ширина)массива,карты
         prepareVertices();
         prepareTextures();
-        game.createMineField(new Point(0,0),new Point(countMapW,countMapH),1500);//(левВерх,правНиж,кол.мин)
+        game.createMineField(new Point(0,0),new Point(countMapW,countMapH),1000);//(левВерх,правНиж,кол.мин)
         game.writeNums();
         game.prepareGG();
 

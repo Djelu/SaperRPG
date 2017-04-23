@@ -33,4 +33,38 @@ public class TexturesId {
     public static int PLY;
     public static int SLOT;
     public static int INVFON;
+
+    public static int SLP;
+    public static int LOOT;
+
+
+    public static int INV_B0;
+    public static int INV_B1;
+    public static int INV_A0;
+    public static int INV_A1;
+    public static int INV_H0;
+    public static int INV_H1;
+    public static int INV_M0;
+    public static int INV_M1;
+    public static int INV_SH0;
+    public static int INV_SH1;
+    public static int INV_S0;
+    public static int INV_S1;
+    public static int INV_R0;
+    public static int INV_R1;
+    public static int INV_P0;
+    public static int INV_P1;
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -1,10 +1,10 @@
 package com.saperrpg.Field;
 
-public class UseObj {
+public class DoubleTexture {
     public int[] id;
     public boolean used;
 
-    public UseObj(int[] id) {
+    public DoubleTexture(int[] id) {
         this.id = id;
         used = false;
     }

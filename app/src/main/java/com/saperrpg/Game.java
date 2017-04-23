@@ -5,16 +5,16 @@ import android.graphics.Point;
 import com.saperrpg.Field.Field;
 import com.saperrpg.Field.FieldType;
 import com.saperrpg.Field.Layer;
-import com.saperrpg.Field.UseObj;
+import com.saperrpg.Field.DoubleTexture;
 import com.saperrpg.Parameters.Pars;
 import com.saperrpg.Parameters.TexturesId;
 import com.saperrpg.RPG.GG;
 
 import java.util.Random;
 
-import static com.saperrpg.Parameters.Constants.buttonsCount;
-import static com.saperrpg.Parameters.Constants.mapLayersCount;
-import static com.saperrpg.Parameters.Constants.slotsCount;
+import static com.saperrpg.Parameters.Constants.BUTTONS_COUNT;
+import static com.saperrpg.Parameters.Constants.MAP_LAYERS_COUNT;
+import static com.saperrpg.Parameters.Constants.INV_SLOTS_COUNT;
 import static com.saperrpg.Parameters.Pars.SqWidthPlusStep;
 import static com.saperrpg.Parameters.Pars.btWidth;
 import static com.saperrpg.Parameters.Pars.buttonsStep;
@@ -43,8 +43,9 @@ import static com.saperrpg.Parameters.Pars.sqWidth;
 public class Game {
     private GG gg;
     private Field[][] map;
-    static UseObj[] intButtons;
-    static UseObj[] invSlots;
+    static DoubleTexture[] intButtons;
+    static Layer[] invSlots;
+    static DoubleTexture[] items;
     static Layer invFon;
 
     public Game(int countMapH, int countMapW, int countLandH, int countLandW) {
@@ -57,8 +58,9 @@ public class Game {
         drawStartH=(halfCountMapH-1)-(halfCountLandH-1);
         drawStartW=(halfCountMapW-1)-(halfCountLandW-1);
 
-        invSlots   = new UseObj[slotsCount];
-        intButtons = new UseObj[buttonsCount];
+        invSlots   = new Layer[INV_SLOTS_COUNT];
+        items = new DoubleTexture[INV_SLOTS_COUNT];
+        intButtons = new DoubleTexture[BUTTONS_COUNT];
 //        map = new Field[countMapH][countMapW];
         gg  = new GG(new Point(random.nextInt(2)+countMapW/2-1,
                                random.nextInt(2)+countMapH/2-1 ));
@@ -237,9 +239,9 @@ public class Game {
         Pars.countLandW=countLandW;
          halfCountLandH=countLandH/2;
          halfCountLandW=countLandW/2;
-        countMapObjs = countLandH * countLandW * mapLayersCount;
-        countMapPlusInvObjs = countMapObjs + slotsCount + 1;
-        countObjs = countMapPlusInvObjs + buttonsCount;
+        countMapObjs = countLandH * countLandW * MAP_LAYERS_COUNT;
+        countMapPlusInvObjs = countMapObjs + INV_SLOTS_COUNT + 1;
+        countObjs = countMapPlusInvObjs + BUTTONS_COUNT;
     }
     private void calculateMapWHParameters(int countMapW, int countMapH){
         Pars.countMapH=countMapH;
