@@ -3,9 +3,9 @@ package com.saperrpg;
 import com.saperrpg.Parameters.Pars;
 
 import static com.saperrpg.Parameters.Constants.VERTICES_COUNT;
-import static com.saperrpg.Parameters.Constants.buttonsCount;
-import static com.saperrpg.Parameters.Constants.mapLayersCount;
-import static com.saperrpg.Parameters.Constants.mapLayersStep;
+import static com.saperrpg.Parameters.Constants.BUTTONS_COUNT;
+import static com.saperrpg.Parameters.Constants.MAP_LAYERS_COUNT;
+import static com.saperrpg.Parameters.Constants.MAP_LAYERS_STEP;
 import static com.saperrpg.Parameters.Pars.SqWidthPlusStep;
 import static com.saperrpg.Parameters.Pars.btWidth;
 import static com.saperrpg.Parameters.Pars.buttonsStep;
@@ -37,8 +37,8 @@ public class Vertices {
 
     //0
     public void createMap(float z) {
-        for (layer = 0; layer < mapLayersCount; layer++) {
-            z = layer * mapLayersStep + z;
+        for (layer = 0; layer < MAP_LAYERS_COUNT; layer++) {
+            z = layer * MAP_LAYERS_STEP + z;
             for (int i = 0; i < countLandH; i++)
                 for (int j = 0; j < countLandW; j++)
                     writeSquareInVPos(vertices, objNum++ * VERTICES_COUNT, nachW + j * SqWidthPlusStep, nachH + i * SqWidthPlusStep, z, sqWidth);
@@ -50,7 +50,7 @@ public class Vertices {
         //фон
         writeSquareInVPos(vertices, objNum++*VERTICES_COUNT, -halfW,-halfH,z,width,height);
         //слоты
-        z+=mapLayersStep;
+        z+= MAP_LAYERS_STEP;
         float halfIWidth = slWidth/2;
         float widthPlusStep = slWidth+slotsStep;
         float widthPlusStepX2 = widthPlusStep*2;
@@ -61,12 +61,22 @@ public class Vertices {
         for(int j=-1; j<2; j+=2)
             for(int i=-1; i<3; i++)
                 writeSquareInVPos(vertices, objNum++*VERTICES_COUNT,-halfIWidth+j*widthPlusStepX2,-halfIWidth+i*widthPlusStep,z,slWidth);//кольца
-
+        z+= MAP_LAYERS_STEP;
+        float slWidthDiv3 = slWidth/3;
+        float itemWidth = slWidth-slWidthDiv3;
+        float move = slWidthDiv3/2;
+        for(int i=-2; i<3; i++)
+            writeSquareInVPos(vertices, objNum++*VERTICES_COUNT,move-halfIWidth,move-halfIWidth+i*widthPlusStep,z,itemWidth);//шмот
+        writeSquareInVPos(vertices, objNum++*VERTICES_COUNT,move-halfIWidth-widthPlusStep,move-halfIWidth+widthPlusStep,z,itemWidth);//меч
+        writeSquareInVPos(vertices, objNum++*VERTICES_COUNT,move-halfIWidth+widthPlusStep,move-halfIWidth              ,z,itemWidth);//щит
+        for(int j=-1; j<2; j+=2)
+            for(int i=-1; i<3; i++)
+                writeSquareInVPos(vertices, objNum++*VERTICES_COUNT,move-halfIWidth+j*widthPlusStepX2,move-halfIWidth+i*widthPlusStep,z,itemWidth);//кольца
     }
     //0.004f
     public void createButtons(float z) {
         Pars.intButtonsObjNum = objNum;
-        for (int i = 1; i < buttonsCount; i++)
+        for (int i = 1; i < BUTTONS_COUNT; i++)
             writeSquareInVPos(vertices, objNum++ * VERTICES_COUNT, halfW - i * btWidth - (i - 1) * buttonsStep, -halfH, z, btWidth);
         Pars.intMenuButtonObjNum = objNum;
         writeSquareInVPos(vertices, objNum *VERTICES_COUNT,-halfW,-halfH,z,btWidth);

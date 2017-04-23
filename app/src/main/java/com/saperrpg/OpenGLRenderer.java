@@ -5,10 +5,10 @@ import android.graphics.Point;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
 
+import com.saperrpg.Field.DoubleTexture;
 import com.saperrpg.Field.Field;
 import com.saperrpg.Field.FieldType;
 import com.saperrpg.Field.Layer;
-import com.saperrpg.Field.UseObj;
 import com.saperrpg.Parameters.Camera;
 import com.saperrpg.Parameters.Pars;
 import com.saperrpg.Parameters.TexturesId;
@@ -53,17 +53,17 @@ import static android.opengl.GLES20.glViewport;
 import static com.saperrpg.Game.intButtons;
 import static com.saperrpg.Game.invFon;
 import static com.saperrpg.Game.invSlots;
+import static com.saperrpg.Game.items;
+import static com.saperrpg.Parameters.Constants.BUTTONS_COUNT;
 import static com.saperrpg.Parameters.Constants.DRAW_COUNT;
-import static com.saperrpg.Parameters.Constants.INV_COUNT;
+import static com.saperrpg.Parameters.Constants.INV_SLOTS_COUNT;
+import static com.saperrpg.Parameters.Constants.MAP_LAYERS_COUNT;
+import static com.saperrpg.Parameters.Constants.MAP_LAYERS_STEP;
 import static com.saperrpg.Parameters.Constants.POSITION_COUNT;
 import static com.saperrpg.Parameters.Constants.STRIDE;
 import static com.saperrpg.Parameters.Constants.TEXTURE_COUNT;
 import static com.saperrpg.Parameters.Constants.VERTICES_COUNT;
-import static com.saperrpg.Parameters.Constants.buttonsCount;
 import static com.saperrpg.Parameters.Constants.hz;
-import static com.saperrpg.Parameters.Constants.mapLayersCount;
-import static com.saperrpg.Parameters.Constants.mapLayersStep;
-import static com.saperrpg.Parameters.Constants.slotsCount;
 import static com.saperrpg.Parameters.Pars.calculateIntParameters;
 import static com.saperrpg.Parameters.Pars.calculateInvParameters;
 import static com.saperrpg.Parameters.Pars.calculateMapParameters;
@@ -80,10 +80,10 @@ import static com.saperrpg.Parameters.Pars.halfCountLandH;
 import static com.saperrpg.Parameters.Pars.halfCountLandW;
 import static com.saperrpg.Parameters.Pars.halfW;
 import static com.saperrpg.Parameters.Pars.intButtonsObjNum;
+import static com.saperrpg.Parameters.Pars.intMenuButtonObjNum;
 import static com.saperrpg.Parameters.Pars.nachH;
 import static com.saperrpg.Parameters.Pars.nachHeight;
 import static com.saperrpg.Parameters.Pars.nachW;
-import static com.saperrpg.Parameters.Pars.intMenuButtonObjNum;
 import static com.saperrpg.Parameters.Pars.numInvDrawObj;
 import static com.saperrpg.Parameters.Pars.scaleNumX;
 import static com.saperrpg.Parameters.Pars.scaleNumY;
@@ -155,16 +155,17 @@ public class OpenGLRenderer implements Renderer{
     }
 
     private void prepareVertices(){
-        Vertices vertices = new Vertices((countMapObjs + slotsCount + buttonsCount + 1) * VERTICES_COUNT);
+        int verticesSize = (countMapObjs + INV_SLOTS_COUNT*2 + BUTTONS_COUNT + 1) * VERTICES_COUNT;
+        Vertices vertices = new Vertices(verticesSize);
         nachW = -(sqWidth+fieldsStep)*(countLandW/2);
         nachH = -(sqWidth+fieldsStep)*(countLandH/2);
 
         vertices.createMap(0);
-        vertices.createInv(mapLayersStep*mapLayersCount);
-        vertices.createButtons(mapLayersStep*mapLayersCount+mapLayersStep);
+        vertices.createInv(MAP_LAYERS_STEP * MAP_LAYERS_COUNT);
+        vertices.createButtons(MAP_LAYERS_STEP * MAP_LAYERS_COUNT + MAP_LAYERS_STEP);
 
         vertexData = ByteBuffer
-                .allocateDirect((countMapObjs+slotsCount+buttonsCount+1)*VERTICES_COUNT*4)
+                .allocateDirect(verticesSize*4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
         vertexData.put(vertices.getVertices());
@@ -202,6 +203,27 @@ public class OpenGLRenderer implements Renderer{
         TexturesId.PLY   = TextureUtils.loadTexture(context,R.drawable.ply   );
         TexturesId.INVFON= TextureUtils.loadTexture(context,R.drawable.invfon);
         TexturesId.SLOT  = TextureUtils.loadTexture(context,R.drawable.inv0  );
+
+        TexturesId.SLP   = TextureUtils.loadTexture(context,R.drawable.invfon);
+        TexturesId.LOOT  = TextureUtils.loadTexture(context,R.drawable.loot  );
+
+        TexturesId.INV_B0 = TextureUtils.loadTexture(context,R.drawable.inv_b0 );
+        TexturesId.INV_B1 = TextureUtils.loadTexture(context,R.drawable.inv_b1 );
+        TexturesId.INV_A0 = TextureUtils.loadTexture(context,R.drawable.inv_a0 );
+        TexturesId.INV_A1 = TextureUtils.loadTexture(context,R.drawable.inv_a1 );
+        TexturesId.INV_H0 = TextureUtils.loadTexture(context,R.drawable.inv_h0 );
+        TexturesId.INV_H1 = TextureUtils.loadTexture(context,R.drawable.inv_h1 );
+        TexturesId.INV_M0 = TextureUtils.loadTexture(context,R.drawable.inv_m0 );
+        TexturesId.INV_M1 = TextureUtils.loadTexture(context,R.drawable.inv_m1 );
+        TexturesId.INV_SH0= TextureUtils.loadTexture(context,R.drawable.inv_sh0);
+        TexturesId.INV_SH1= TextureUtils.loadTexture(context,R.drawable.inv_sh1);
+        TexturesId.INV_S0 = TextureUtils.loadTexture(context,R.drawable.inv_s0 );
+        TexturesId.INV_S1 = TextureUtils.loadTexture(context,R.drawable.inv_s1 );
+        TexturesId.INV_R0 = TextureUtils.loadTexture(context,R.drawable.inv_r0 );
+        TexturesId.INV_R1 = TextureUtils.loadTexture(context,R.drawable.inv_r1 );
+        TexturesId.INV_P0 = TextureUtils.loadTexture(context,R.drawable.inv_p0 );
+        TexturesId.INV_P1 = TextureUtils.loadTexture(context,R.drawable.inv_p1 );
+
         //присваивание текстур
         Random random = new Random();
         Field[][] map = new Field[countMapH][countMapW];
@@ -220,13 +242,23 @@ public class OpenGLRenderer implements Renderer{
             }
         game.setMap(map);
         //интерфейс
-        intButtons[0]=new UseObj(new int[]{TexturesId.MENU , TexturesId.PLY  });
-        intButtons[2]=new UseObj(new int[]{TexturesId.NDAY , TexturesId.IDAY });
-        intButtons[1]=new UseObj(new int[]{TexturesId.MFLAG, TexturesId.IFLAG});
+        intButtons[0]=new DoubleTexture(new int[]{TexturesId.MENU , TexturesId.PLY  });
+        intButtons[2]=new DoubleTexture(new int[]{TexturesId.NDAY , TexturesId.IDAY });
+        intButtons[1]=new DoubleTexture(new int[]{TexturesId.MFLAG, TexturesId.IFLAG});
         //инвентарь
         invFon = new Layer(TexturesId.INVFON,false);
-        for(int i = 0; i< INV_COUNT; i++)
-            invSlots[i]=new UseObj(new int[]{TexturesId.SLOT, TexturesId.EMPTY});
+        for(int i = 0; i< INV_SLOTS_COUNT; i++)
+            invSlots[i]=new Layer(TexturesId.SLOT,true);
+        int i = 0;
+        items[i++]=new DoubleTexture(new int[]{TexturesId.INV_B0 ,TexturesId.INV_B1 });
+        items[i++]=new DoubleTexture(new int[]{TexturesId.INV_P0 ,TexturesId.INV_P1 });
+        items[i++]=new DoubleTexture(new int[]{TexturesId.INV_M0 ,TexturesId.INV_M1 });
+        items[i++]=new DoubleTexture(new int[]{TexturesId.INV_A0 ,TexturesId.INV_A1 });
+        items[i++]=new DoubleTexture(new int[]{TexturesId.INV_H0 ,TexturesId.INV_H1 });
+        items[i++]=new DoubleTexture(new int[]{TexturesId.INV_S0 ,TexturesId.INV_S1 });
+        items[i++]=new DoubleTexture(new int[]{TexturesId.INV_SH0,TexturesId.INV_SH1});
+        for(int j=0; j<8; j++)
+            items[i++]=new DoubleTexture(new int[]{TexturesId.INV_R0 ,TexturesId.INV_R1});
     }
 
     private void createAndUseProgram() {
@@ -299,7 +331,7 @@ public class OpenGLRenderer implements Renderer{
             //карта
             GG gg = game.getGG();
             Field[][] map = game.getMap();
-            for (int a = 0; a< mapLayersCount; a++)
+            for (int a = 0; a< MAP_LAYERS_COUNT; a++)
                 for(int i=drawStartH; i<drawStartH+countLandH; i++)
                     for(int j=drawStartW; j<drawStartW+countLandW; j++,objNum++){
                         Matrix.setIdentityM(mModelMatrix,0);
@@ -316,7 +348,7 @@ public class OpenGLRenderer implements Renderer{
                     }
             objNum=intButtonsObjNum;
             //интерфейс
-            for(int i = 1; i< buttonsCount; i++){
+            for(int i = 1; i< BUTTONS_COUNT; i++){
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, intButtons[i].getId());
                 glDrawArrays(GL_TRIANGLE_STRIP, objNum++*DRAW_COUNT, DRAW_COUNT);
@@ -327,9 +359,14 @@ public class OpenGLRenderer implements Renderer{
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, invFon.visible? invFon.id: TexturesId.NULL);
             glDrawArrays(GL_TRIANGLE_STRIP, objNum++*DRAW_COUNT, DRAW_COUNT);
-            for(int i=0; i<INV_COUNT; i++){
+            for(int i = 0; i< INV_SLOTS_COUNT; i++){
                 glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, invSlots[i].getId());
+                glBindTexture(GL_TEXTURE_2D, invSlots[i].id);
+                glDrawArrays(GL_TRIANGLE_STRIP, objNum++*DRAW_COUNT, DRAW_COUNT);
+            }
+            for(int i=0; i<INV_SLOTS_COUNT; i++){
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, items[i].getId());
                 glDrawArrays(GL_TRIANGLE_STRIP, objNum++*DRAW_COUNT, DRAW_COUNT);
             }
         }
