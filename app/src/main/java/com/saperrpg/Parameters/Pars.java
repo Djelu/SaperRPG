@@ -26,7 +26,8 @@ public class Pars {
     static public float halfH;
     static public float nachW;
     static public float nachH;
-    static public int   numIntDrawObj;
+    static public int   intButtonsObjNum;
+    static public int   intMenuButtonObjNum;
     static public int   numInvDrawObj;
     static public int   countObjs;
     static public int   countMapPlusInvObjs;

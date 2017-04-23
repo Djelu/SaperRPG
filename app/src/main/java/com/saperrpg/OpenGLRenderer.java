@@ -79,10 +79,11 @@ import static com.saperrpg.Parameters.Pars.fps;
 import static com.saperrpg.Parameters.Pars.halfCountLandH;
 import static com.saperrpg.Parameters.Pars.halfCountLandW;
 import static com.saperrpg.Parameters.Pars.halfW;
+import static com.saperrpg.Parameters.Pars.intButtonsObjNum;
 import static com.saperrpg.Parameters.Pars.nachH;
 import static com.saperrpg.Parameters.Pars.nachHeight;
 import static com.saperrpg.Parameters.Pars.nachW;
-import static com.saperrpg.Parameters.Pars.numIntDrawObj;
+import static com.saperrpg.Parameters.Pars.intMenuButtonObjNum;
 import static com.saperrpg.Parameters.Pars.numInvDrawObj;
 import static com.saperrpg.Parameters.Pars.scaleNumX;
 import static com.saperrpg.Parameters.Pars.scaleNumY;
@@ -109,7 +110,6 @@ public class OpenGLRenderer implements Renderer{
     private float[] mMatrix = new float[16];
 
     private Game game;
-    private Random random;
 
     public OpenGLRenderer(Context context, float width, float height) {
         this.context = context;
@@ -133,14 +133,12 @@ public class OpenGLRenderer implements Renderer{
         createAndUseProgram();
         getLocations();
 
-        random = new Random();
-
         game = new Game(50,50,10,10);//(высота,ширина)массива,карты
         prepareVertices();
         prepareTextures();
         game.createMineField(new Point(0,0),new Point(countMapW,countMapH),1500);//(левВерх,правНиж,кол.мин)
-        game.writeNums();//расстановка цифр
-        game.prepareGG();//
+        game.writeNums();
+        game.prepareGG();
 
         bindData();
         createViewMatrix();
@@ -205,8 +203,7 @@ public class OpenGLRenderer implements Renderer{
         TexturesId.INVFON= TextureUtils.loadTexture(context,R.drawable.invfon);
         TexturesId.SLOT  = TextureUtils.loadTexture(context,R.drawable.inv0  );
         //присваивание текстур
-        //
-        //карта
+        Random random = new Random();
         Field[][] map = new Field[countMapH][countMapW];
         for(int i=0,textureId=0; i<countMapH; i++)
             for(int j=0; j<countMapW; j++){
@@ -222,7 +219,7 @@ public class OpenGLRenderer implements Renderer{
                         new Layer(       textureId, true )});
             }
         game.setMap(map);
-        ////интерфейс
+        //интерфейс
         intButtons[0]=new UseObj(new int[]{TexturesId.MENU , TexturesId.PLY  });
         intButtons[2]=new UseObj(new int[]{TexturesId.NDAY , TexturesId.IDAY });
         intButtons[1]=new UseObj(new int[]{TexturesId.MFLAG, TexturesId.IFLAG});
@@ -291,19 +288,6 @@ public class OpenGLRenderer implements Renderer{
         Camera.eyeY+=y;
     }
 
-    public interface Command<T> {
-        void draw(int textureId, int objNum);
-    }
-
-//    private <T> T transaction(final  Command<T> command){
-//        return command.draw(session);
-//    }
-//
-//    @Override
-//    public Collection<User> values() {
-//        return transaction((Session session) -> session.createQuery("from User").list());
-//    }
-
     @Override
     public void onDrawFrame(GL10 arg0){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -330,6 +314,7 @@ public class OpenGLRenderer implements Renderer{
                         glBindTexture(GL_TEXTURE_2D, map[i][j].layers[a].visible? (((a==2)&&(map[i][j].flag))? TexturesId.MFLAG:map[i][j].layers[a].id): TexturesId.NULL);
                         glDrawArrays(GL_TRIANGLE_STRIP, objNum*DRAW_COUNT, DRAW_COUNT);
                     }
+            objNum=intButtonsObjNum;
             //интерфейс
             for(int i = 1; i< buttonsCount; i++){
                 glActiveTexture(GL_TEXTURE0);
@@ -348,7 +333,7 @@ public class OpenGLRenderer implements Renderer{
                 glDrawArrays(GL_TRIANGLE_STRIP, objNum++*DRAW_COUNT, DRAW_COUNT);
             }
         }
-        objNum=numIntDrawObj;
+        objNum=intMenuButtonObjNum;
         //интерфейс(кнопка инвентаря)
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, intButtons[0].getId());

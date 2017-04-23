@@ -43,15 +43,14 @@ public class Vertices {
                 for (int j = 0; j < countLandW; j++)
                     writeSquareInVPos(vertices, objNum++ * VERTICES_COUNT, nachW + j * SqWidthPlusStep, nachH + i * SqWidthPlusStep, z, sqWidth);
         }
-        for (int i = 1; i < buttonsCount; i++)
-            writeSquareInVPos(vertices, objNum++ * VERTICES_COUNT, halfW - i * btWidth - (i - 1) * buttonsStep, -halfH, 0.004f, btWidth);
     }
     //0.003f
     public void createInv(float z) {
         Pars.numInvDrawObj= objNum;
         //фон
-        writeSquareInVPos(vertices, objNum++*VERTICES_COUNT, -halfW,-halfH,z+= mapLayersStep,width,height);
+        writeSquareInVPos(vertices, objNum++*VERTICES_COUNT, -halfW,-halfH,z,width,height);
         //слоты
+        z+=mapLayersStep;
         float halfIWidth = slWidth/2;
         float widthPlusStep = slWidth+slotsStep;
         float widthPlusStepX2 = widthPlusStep*2;
@@ -66,7 +65,10 @@ public class Vertices {
     }
     //0.004f
     public void createButtons(float z) {
-        Pars.numIntDrawObj= objNum;
+        Pars.intButtonsObjNum = objNum;
+        for (int i = 1; i < buttonsCount; i++)
+            writeSquareInVPos(vertices, objNum++ * VERTICES_COUNT, halfW - i * btWidth - (i - 1) * buttonsStep, -halfH, z, btWidth);
+        Pars.intMenuButtonObjNum = objNum;
         writeSquareInVPos(vertices, objNum *VERTICES_COUNT,-halfW,-halfH,z,btWidth);
     }
 

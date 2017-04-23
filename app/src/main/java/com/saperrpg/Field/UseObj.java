@@ -14,6 +14,6 @@ public class UseObj {
     }
 
     public int getId(){
-        return used ?id[1]:id[0];
+        return used? id[1]: id[0];
     }
 }
