@@ -140,7 +140,12 @@ public class OpenGLRenderer implements Renderer{
         game = new Game(1000,1000,10,10);//(высота,ширина)массива,карты
         prepareVertices();
         prepareTextures();
-        game.createMineField(new Point(0,0),new Point(countMapW,countMapH),700000);//(левВерх,правНиж,кол.мин)
+        for(int i=0; i<countMapH; i++) {
+            for (int j = 0; j < countMapW; j++)
+                System.out.print(game.getMap()[i][j] == null ? 0 : 1);
+            System.out.println();
+        }
+                game.createMineField(new Point(0,0),new Point(countMapW,countMapH),700000);//(левВерх,правНиж,кол.мин)
         game.writeNums();
         game.prepareGG();
 
@@ -269,7 +274,14 @@ public class OpenGLRenderer implements Renderer{
 //        int[][] ranges = createRanges(countMapH);
         Field[][] map = new Field[countMapH][countMapW];
 
+        for(int i=0; i<drawStartH; i++)
+            for(int j=0; j<drawStartW; j++)
+                map[i][j] = new Field();
+        for(int i=drawStartH+countLandH; i<countMapH; i++)
+            for(int j=drawStartW+countLandW; j<countMapW; j++)
+                map[i][j] = new Field();
         TexturesId.visibleAreaFillTexturesIds(true,map);
+
 
 //        for(int o=0; o<threadsCount; o++) {
 //            int low = ranges[o][0];

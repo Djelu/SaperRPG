@@ -92,7 +92,7 @@ public class TexturesId {
                     case 2: textureId = TexturesId.TREE2;break;
                     case 3: textureId = TexturesId.TREE3;break;
                 }
-                if(map[i][j].type==FieldType.MONSTER)
+                if((map[i][j]!=null)&&(map[i][j].type==FieldType.MONSTER))
                     map[i][j] = new Field(FieldType.EMPTY, new Layer[]{
                             new Layer(TexturesId.LAND , true ),
                             new Layer(TexturesId.MON0, false),
