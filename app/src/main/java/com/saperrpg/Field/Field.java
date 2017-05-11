@@ -1,6 +1,6 @@
 package com.saperrpg.Field;
 
-import com.saperrpg.Parameters.TexturesId;
+import com.saperrpg.RPG.RPG;
 
 public class Field {
     public FieldType type;
@@ -8,7 +8,7 @@ public class Field {
     public boolean opened;
     public boolean flag;
 
-    public com.saperrpg.RPG.RPG RPG;
+    public RPG rpg;
 
     public int saperNum;
     public boolean canMine;
@@ -22,9 +22,15 @@ public class Field {
         flag=false;
     }
 
+    public Field() {
+        saperNum=0;
+        canMine=true;
+        opened=false;
+        flag=false;
+    }
+
     public void createMoster(){
         type = FieldType.MONSTER;
-        layers[1].id = TexturesId.MON0;
     }
 
     public void doFlag(){

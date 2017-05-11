@@ -9,6 +9,8 @@ public class RPG {
         this.loot = new Stats[14];
     }
 
+    public Stats getAllStats(){return stats;}
+
     public Stats getStats() {
         return stats;
     }

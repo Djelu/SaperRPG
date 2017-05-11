@@ -51,6 +51,8 @@ public class Pars {
     static public float varW;
     static public float varH;
 
+    static public int threadsCount;
+
     public static void calculateMapParameters(float sqWidth, float fieldsStep, float scaleNumX, float scaleNumY){
         height = (nachHeight = height)-panelH;
         halfW = width /2;

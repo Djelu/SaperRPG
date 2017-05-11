@@ -19,7 +19,6 @@ import com.saperrpg.Utils.TextureUtils;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.util.Random;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -90,6 +89,7 @@ import static com.saperrpg.Parameters.Pars.scaleNumY;
 import static com.saperrpg.Parameters.Pars.sqWidth;
 import static com.saperrpg.Parameters.Pars.sqWidthDiv3;
 import static com.saperrpg.Parameters.Pars.sqWidthDiv6;
+import static com.saperrpg.Parameters.Pars.threadsCount;
 import static com.saperrpg.Parameters.Pars.varH;
 import static com.saperrpg.Parameters.Pars.varW;
 import static com.saperrpg.Parameters.Projection.far;
@@ -111,6 +111,8 @@ public class OpenGLRenderer implements Renderer{
 
     private Game game;
 
+    private Thread[] threads;
+
     public OpenGLRenderer(Context context, float width, float height) {
         this.context = context;
         Pars.height = height;
@@ -126,6 +128,8 @@ public class OpenGLRenderer implements Renderer{
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
+        threads = new Thread[threadsCount];
+
         calculateMapParameters(50,1,0.3f,0.3f);//квадраты карты (ширина,шаг,ширина цифр,высота цифр)
         calculateIntParameters(100,0);//кнопки (ширина,шаг)
         calculateInvParameters( 70,7);//слоты инвентаря (ширина,шаг)
@@ -133,10 +137,10 @@ public class OpenGLRenderer implements Renderer{
         createAndUseProgram();
         getLocations();
 
-        game = new Game(50,50,10,10);//(высота,ширина)массива,карты
+        game = new Game(1000,1000,10,10);//(высота,ширина)массива,карты
         prepareVertices();
         prepareTextures();
-        game.createMineField(new Point(0,0),new Point(countMapW,countMapH),1000);//(левВерх,правНиж,кол.мин)
+        game.createMineField(new Point(0,0),new Point(countMapW,countMapH),700000);//(левВерх,правНиж,кол.мин)
         game.writeNums();
         game.prepareGG();
 
@@ -170,6 +174,42 @@ public class OpenGLRenderer implements Renderer{
                 .asFloatBuffer();
         vertexData.put(vertices.getVertices());
     }
+
+//    private void setTexturesIdsToMap(Field[][] map, int low, int high){
+//        Random random = new Random();
+////        for(int i=0,textureId=0; i<countMapH; i++)
+//        for(int i=low,textureId=0; i<high; i++)
+//            for(int j=0; j<countMapW; j++){
+//                switch (random.nextInt(4)){
+//                    case 0: textureId = TexturesId.TREE0;break;
+//                    case 1: textureId = TexturesId.TREE1;break;
+//                    case 2: textureId = TexturesId.TREE2;break;
+//                    case 3: textureId = TexturesId.TREE3;break;
+//                }
+//                map[i][j] = new Field(FieldType.EMPTY, new Layer[]{
+//                        new Layer(TexturesId.LAND , true ),
+//                        new Layer(TexturesId.EMPTY, false),
+//                        new Layer(       textureId, true )});
+//            }
+//    }
+
+    private int[][] createRanges(int n){
+        int count = n/threadsCount;
+        int otherCount = n%threadsCount;
+
+        int[][] ranges = new int[threadsCount][2];
+        ranges[0][0] = 0;
+
+        for(int i=0, k=-1; i<threadsCount; i++){
+            ranges[i][1] = count*(i+1)+k;
+            if(i < otherCount)
+                ranges[i][1] += ++k;
+        }
+        for(int i=1; i<threadsCount; i++) ranges[i][0] = ranges[i-1][1]+1;
+
+        return ranges;
+    }
+
     private void prepareTextures(){
         //загрузка текстур
         TexturesId.LAND  = TextureUtils.loadTexture(context,R.drawable.land  );
@@ -225,21 +265,23 @@ public class OpenGLRenderer implements Renderer{
         TexturesId.INV_P1 = TextureUtils.loadTexture(context,R.drawable.inv_p1 );
 
         //присваивание текстур
-        Random random = new Random();
+
+//        int[][] ranges = createRanges(countMapH);
         Field[][] map = new Field[countMapH][countMapW];
-        for(int i=0,textureId=0; i<countMapH; i++)
-            for(int j=0; j<countMapW; j++){
-                switch (random.nextInt(4)){
-                    case 0: textureId = TexturesId.TREE0;break;
-                    case 1: textureId = TexturesId.TREE1;break;
-                    case 2: textureId = TexturesId.TREE2;break;
-                    case 3: textureId = TexturesId.TREE3;break;
-                }
-                map[i][j] = new Field(FieldType.EMPTY, new Layer[]{
-                        new Layer(TexturesId.LAND , true ),
-                        new Layer(TexturesId.EMPTY, false),
-                        new Layer(       textureId, true )});
-            }
+
+        TexturesId.visibleAreaFillTexturesIds(true,map);
+
+//        for(int o=0; o<threadsCount; o++) {
+//            int low = ranges[o][0];
+//            int high= ranges[o][1];
+//            threads[o] = new Thread( () -> setTexturesIdsToMap(map,low,high)) ;
+//            threads[o].start();
+//        }
+//        try {
+//            for(Thread th: threads)  th.join();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         game.setMap(map);
         //интерфейс
         intButtons[0]=new DoubleTexture(new int[]{TexturesId.MENU , TexturesId.PLY  });
@@ -331,11 +373,11 @@ public class OpenGLRenderer implements Renderer{
             //карта
             GG gg = game.getGG();
             Field[][] map = game.getMap();
-            for (int a = 0; a< MAP_LAYERS_COUNT; a++)
+            for (int layer = 0; layer< MAP_LAYERS_COUNT; layer++)
                 for(int i=drawStartH; i<drawStartH+countLandH; i++)
                     for(int j=drawStartW; j<drawStartW+countLandW; j++,objNum++){
                         Matrix.setIdentityM(mModelMatrix,0);
-                        if((((gg.mapPos.y==i)&&(gg.mapPos.x==j))||((map[i][j].type== FieldType.MONSTER)&&(map[i][j].layers[1].visible)))&&(a==2)){
+                        if((/*((gg.mapPos.y==i)&&(gg.mapPos.x==j))*/(map[i][j].type==FieldType.GG)||((map[i][j].type==FieldType.MONSTER)&&(map[i][j].layers[1].visible)))&&(layer==2)){
                             Matrix.translateM(mModelMatrix,0,sqWidthDiv3,sqWidthDiv6,0);
                             Matrix.translateM(mModelMatrix,0,j*sqWidth-varW,i*sqWidth-varH,0);
                             Matrix.scaleM(mModelMatrix,0,scaleNumX,scaleNumY,1f);
@@ -343,7 +385,7 @@ public class OpenGLRenderer implements Renderer{
                         }
                         bindMatrix();
                         glActiveTexture(GL_TEXTURE0);
-                        glBindTexture(GL_TEXTURE_2D, map[i][j].layers[a].visible? (((a==2)&&(map[i][j].flag))? TexturesId.MFLAG:map[i][j].layers[a].id): TexturesId.NULL);
+                        glBindTexture(GL_TEXTURE_2D, map[i][j].layers[layer].visible? (((layer==2)&&(map[i][j].flag))? TexturesId.MFLAG:map[i][j].layers[layer].id): TexturesId.NULL);
                         glDrawArrays(GL_TRIANGLE_STRIP, objNum*DRAW_COUNT, DRAW_COUNT);
                     }
             objNum=intButtonsObjNum;

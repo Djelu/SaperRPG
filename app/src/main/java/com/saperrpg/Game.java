@@ -2,10 +2,10 @@ package com.saperrpg;
 
 import android.graphics.Point;
 
+import com.saperrpg.Field.DoubleTexture;
 import com.saperrpg.Field.Field;
 import com.saperrpg.Field.FieldType;
 import com.saperrpg.Field.Layer;
-import com.saperrpg.Field.DoubleTexture;
 import com.saperrpg.Parameters.Pars;
 import com.saperrpg.Parameters.TexturesId;
 import com.saperrpg.RPG.GG;
@@ -13,17 +13,15 @@ import com.saperrpg.RPG.GG;
 import java.util.Random;
 
 import static com.saperrpg.Parameters.Constants.BUTTONS_COUNT;
-import static com.saperrpg.Parameters.Constants.MAP_LAYERS_COUNT;
 import static com.saperrpg.Parameters.Constants.INV_SLOTS_COUNT;
+import static com.saperrpg.Parameters.Constants.MAP_LAYERS_COUNT;
 import static com.saperrpg.Parameters.Pars.SqWidthPlusStep;
 import static com.saperrpg.Parameters.Pars.btWidth;
 import static com.saperrpg.Parameters.Pars.buttonsStep;
 import static com.saperrpg.Parameters.Pars.countLandH;
 import static com.saperrpg.Parameters.Pars.countLandW;
-import static com.saperrpg.Parameters.Pars.countMapH;
 import static com.saperrpg.Parameters.Pars.countMapObjs;
 import static com.saperrpg.Parameters.Pars.countMapPlusInvObjs;
-import static com.saperrpg.Parameters.Pars.countMapW;
 import static com.saperrpg.Parameters.Pars.countObjs;
 import static com.saperrpg.Parameters.Pars.drawStartH;
 import static com.saperrpg.Parameters.Pars.drawStartW;
@@ -124,7 +122,7 @@ public class Game {
                         }
                         if((resX!=-1)&&(resY!=-1)) {
                             result.set(result.x+drawStartW,result.y+drawStartH);
-                            checkTargetAndWork(result);
+                            checkTargetAndWork(result);//что же мы можем сделать с содержимым этой клетки? - Узнаём.
                         }
                     }
         }
@@ -155,58 +153,96 @@ public class Game {
         }
     }
     private void moveTo(Point point){
-        //узнаём быстрейший путь, разбиваем на отрезки и для каждого вызываем:
+        //тут узнаём быстрейший путь, разбиваем на шаги
+        //последовательно для каждого шага вызываем:
         if(map[point.y][point.x].type== FieldType.MONSTER){
             map[point.y][point.x].layers[1].visible=true ;
             map[point.y][point.x].layers[2].visible=false;
-            gg.attack(map[point.y][point.x].RPG);
+            gg.attack(map[point.y][point.x].rpg);
         }else {
             if( map[point.y][point.x].flag  ) map[point.y][point.x].doFlag();
             if(!map[point.y][point.x].opened)
-                writeNums(point,new Point(drawStartW,drawStartH),new Point(drawStartW+countLandW,drawStartH+countLandH));
+                writeNums();
             gg.move(point,map);
         }
     }
 
     void writeNums(){
-        writeNums(gg.mapPos, new Point(0,0), new Point(countMapW,countMapH));
+        writeNums(gg.mapPos.x, gg.mapPos.y, new Point(drawStartW,drawStartH), new Point(drawStartW+countLandW,drawStartH+countLandH));
     }
-    void writeNums(Point point, Point leftTopXY, Point rightBotXY){
-        map[point.y][point.x].opened=true;
-        setNum(point, leftTopXY, rightBotXY);
-        map[point.y][point.x].layers[1].visible=true ;
-        switch (map[point.y][point.x].saperNum){
-            case 1:map[point.y][point.x].layers[2].id= TexturesId.NUM1 ; break;
-            case 2:map[point.y][point.x].layers[2].id=TexturesId.NUM2 ; break;
-            case 3:map[point.y][point.x].layers[2].id=TexturesId.NUM3 ; break;
-            case 4:map[point.y][point.x].layers[2].id=TexturesId.NUM4 ; break;
-            case 5:map[point.y][point.x].layers[2].id=TexturesId.NUM5 ; break;
-            case 6:map[point.y][point.x].layers[2].id=TexturesId.NUM6 ; break;
-            case 7:map[point.y][point.x].layers[2].id=TexturesId.NUM7 ; break;
-            case 8:map[point.y][point.x].layers[2].id=TexturesId.NUM8 ; break;
+//    void writeNums(Point point, Point leftTopXY, Point rightBotXY){
+//        map[point.y][point.x].opened=true;
+//        setNum(point, leftTopXY, rightBotXY);
+//        map[point.y][point.x].layers[1].visible=true ;
+//        switch (map[point.y][point.x].saperNum){
+//            case 1:map[point.y][point.x].layers[2].id= TexturesId.NUM1 ; break;
+//            case 2:map[point.y][point.x].layers[2].id=TexturesId.NUM2 ; break;
+//            case 3:map[point.y][point.x].layers[2].id=TexturesId.NUM3 ; break;
+//            case 4:map[point.y][point.x].layers[2].id=TexturesId.NUM4 ; break;
+//            case 5:map[point.y][point.x].layers[2].id=TexturesId.NUM5 ; break;
+//            case 6:map[point.y][point.x].layers[2].id=TexturesId.NUM6 ; break;
+//            case 7:map[point.y][point.x].layers[2].id=TexturesId.NUM7 ; break;
+//            case 8:map[point.y][point.x].layers[2].id=TexturesId.NUM8 ; break;
+//            case 0:{
+//                map[point.y][point.x].layers[2].visible=false;
+//                if((point.y-1>= leftTopXY.y)&&(point.x-1>= leftTopXY.x)&&(!map[point.y-1][point.x-1].opened)) writeNums(new Point(point.x-1,point.y-1),leftTopXY,rightBotXY);
+//                if((point.y  >= leftTopXY.y)&&(point.x-1>= leftTopXY.x)&&(!map[point.y  ][point.x-1].opened)) writeNums(new Point(point.x-1,point.y  ),leftTopXY,rightBotXY);
+//                if((point.y-1>= leftTopXY.y)&&(point.x  >= leftTopXY.x)&&(!map[point.y-1][point.x  ].opened)) writeNums(new Point(point.x  ,point.y-1),leftTopXY,rightBotXY);
+//                if((point.y-1>= leftTopXY.y)&&(point.x+1< rightBotXY.x)&&(!map[point.y-1][point.x+1].opened)) writeNums(new Point(point.x+1,point.y-1),leftTopXY,rightBotXY);
+//                if((point.y+1< rightBotXY.y)&&(point.x-1>= leftTopXY.x)&&(!map[point.y+1][point.x-1].opened)) writeNums(new Point(point.x-1,point.y+1),leftTopXY,rightBotXY);
+//                if((point.y+1< rightBotXY.y)&&(point.x+1< rightBotXY.x)&&(!map[point.y+1][point.x+1].opened)) writeNums(new Point(point.x+1,point.y+1),leftTopXY,rightBotXY);
+//                if((point.y  >= leftTopXY.y)&&(point.x+1< rightBotXY.x)&&(!map[point.y  ][point.x+1].opened)) writeNums(new Point(point.x+1,point.y  ),leftTopXY,rightBotXY);
+//                if((point.y+1< rightBotXY.y)&&(point.x  >= leftTopXY.x)&&(!map[point.y+1][point.x  ].opened)) writeNums(new Point(point.x  ,point.y+1),leftTopXY,rightBotXY);
+//            }break;
+//        }
+//    }
+    void writeNums(int x, int y, Point leftTopXY, Point rightBotXY){
+        map[y][x].opened=true;
+        setNum(x, y, leftTopXY, rightBotXY);
+        map[y][x].layers[1].visible=true ;
+        switch (map[y][x].saperNum){
+            case 1:map[y][x].layers[2].id= TexturesId.NUM1 ; break;
+            case 2:map[y][x].layers[2].id=TexturesId.NUM2 ; break;
+            case 3:map[y][x].layers[2].id=TexturesId.NUM3 ; break;
+            case 4:map[y][x].layers[2].id=TexturesId.NUM4 ; break;
+            case 5:map[y][x].layers[2].id=TexturesId.NUM5 ; break;
+            case 6:map[y][x].layers[2].id=TexturesId.NUM6 ; break;
+            case 7:map[y][x].layers[2].id=TexturesId.NUM7 ; break;
+            case 8:map[y][x].layers[2].id=TexturesId.NUM8 ; break;
             case 0:{
-                map[point.y][point.x].layers[2].visible=false;
-                if((point.y-1>= leftTopXY.y)&&(point.x-1>= leftTopXY.x)&&(!map[point.y-1][point.x-1].opened)) writeNums(new Point(point.x-1,point.y-1),leftTopXY,rightBotXY);
-                if((point.y  >= leftTopXY.y)&&(point.x-1>= leftTopXY.x)&&(!map[point.y  ][point.x-1].opened)) writeNums(new Point(point.x-1,point.y  ),leftTopXY,rightBotXY);
-                if((point.y-1>= leftTopXY.y)&&(point.x  >= leftTopXY.x)&&(!map[point.y-1][point.x  ].opened)) writeNums(new Point(point.x  ,point.y-1),leftTopXY,rightBotXY);
-                if((point.y-1>= leftTopXY.y)&&(point.x+1< rightBotXY.x)&&(!map[point.y-1][point.x+1].opened)) writeNums(new Point(point.x+1,point.y-1),leftTopXY,rightBotXY);
-                if((point.y+1< rightBotXY.y)&&(point.x-1>= leftTopXY.x)&&(!map[point.y+1][point.x-1].opened)) writeNums(new Point(point.x-1,point.y+1),leftTopXY,rightBotXY);
-                if((point.y+1< rightBotXY.y)&&(point.x+1< rightBotXY.x)&&(!map[point.y+1][point.x+1].opened)) writeNums(new Point(point.x+1,point.y+1),leftTopXY,rightBotXY);
-                if((point.y  >= leftTopXY.y)&&(point.x+1< rightBotXY.x)&&(!map[point.y  ][point.x+1].opened)) writeNums(new Point(point.x+1,point.y  ),leftTopXY,rightBotXY);
-                if((point.y+1< rightBotXY.y)&&(point.x  >= leftTopXY.x)&&(!map[point.y+1][point.x  ].opened)) writeNums(new Point(point.x  ,point.y+1),leftTopXY,rightBotXY);
+                map[y][x].layers[2].visible=false;
+                if((y-1>= leftTopXY.y)&&(x-1>= leftTopXY.x)&&(!map[y-1][x-1].opened)) writeNums(x-1,y-1,leftTopXY,rightBotXY);
+                if((y  >= leftTopXY.y)&&(x-1>= leftTopXY.x)&&(!map[y  ][x-1].opened)) writeNums(x-1,y  ,leftTopXY,rightBotXY);
+                if((y-1>= leftTopXY.y)&&(x  >= leftTopXY.x)&&(!map[y-1][x  ].opened)) writeNums(x  ,y-1,leftTopXY,rightBotXY);
+                if((y-1>= leftTopXY.y)&&(x+1< rightBotXY.x)&&(!map[y-1][x+1].opened)) writeNums(x+1,y-1,leftTopXY,rightBotXY);
+                if((y+1< rightBotXY.y)&&(x-1>= leftTopXY.x)&&(!map[y+1][x-1].opened)) writeNums(x-1,y+1,leftTopXY,rightBotXY);
+                if((y+1< rightBotXY.y)&&(x+1< rightBotXY.x)&&(!map[y+1][x+1].opened)) writeNums(x+1,y+1,leftTopXY,rightBotXY);
+                if((y  >= leftTopXY.y)&&(x+1< rightBotXY.x)&&(!map[y  ][x+1].opened)) writeNums(x+1,y  ,leftTopXY,rightBotXY);
+                if((y+1< rightBotXY.y)&&(x  >= leftTopXY.x)&&(!map[y+1][x  ].opened)) writeNums(x  ,y+1,leftTopXY,rightBotXY);
             }break;
         }
     }
-    private void setNum(Point point, Point leftTopXY, Point rightBotXY){
-        map[point.y][point.x].saperNum=0;
-        if((point.y-1>= leftTopXY.y)&&(point.x-1>= leftTopXY.x)&&(map[point.y-1][point.x-1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y  >= leftTopXY.y)&&(point.x-1>= leftTopXY.x)&&(map[point.y  ][point.x-1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y-1>= leftTopXY.y)&&(point.x  >= leftTopXY.x)&&(map[point.y-1][point.x  ].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y-1>= leftTopXY.y)&&(point.x+1< rightBotXY.x)&&(map[point.y-1][point.x+1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y+1< rightBotXY.y)&&(point.x-1>= leftTopXY.x)&&(map[point.y+1][point.x-1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y+1< rightBotXY.y)&&(point.x+1< rightBotXY.x)&&(map[point.y+1][point.x+1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y  >= leftTopXY.y)&&(point.x+1< rightBotXY.x)&&(map[point.y  ][point.x+1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
-        if((point.y+1< rightBotXY.y)&&(point.x  >= leftTopXY.x)&&(map[point.y+1][point.x  ].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+//    private void setNum(Point point, Point leftTopXY, Point rightBotXY){
+//        map[point.y][point.x].saperNum=0;
+//        if((point.y-1>= leftTopXY.y)&&(point.x-1>= leftTopXY.x)&&(map[point.y-1][point.x-1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+//        if((point.y  >= leftTopXY.y)&&(point.x-1>= leftTopXY.x)&&(map[point.y  ][point.x-1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+//        if((point.y-1>= leftTopXY.y)&&(point.x  >= leftTopXY.x)&&(map[point.y-1][point.x  ].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+//        if((point.y-1>= leftTopXY.y)&&(point.x+1< rightBotXY.x)&&(map[point.y-1][point.x+1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+//        if((point.y+1< rightBotXY.y)&&(point.x-1>= leftTopXY.x)&&(map[point.y+1][point.x-1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+//        if((point.y+1< rightBotXY.y)&&(point.x+1< rightBotXY.x)&&(map[point.y+1][point.x+1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+//        if((point.y  >= leftTopXY.y)&&(point.x+1< rightBotXY.x)&&(map[point.y  ][point.x+1].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+//        if((point.y+1< rightBotXY.y)&&(point.x  >= leftTopXY.x)&&(map[point.y+1][point.x  ].type== FieldType.MONSTER)) map[point.y][point.x].saperNum++;
+//    }
+    private void setNum(int x, int y, Point leftTopXY, Point rightBotXY){
+        map[y][x].saperNum=0;
+        if((y-1>= leftTopXY.y)&&(x-1>= leftTopXY.x)&&(map[y-1][x-1].type== FieldType.MONSTER)) map[y][x].saperNum++;
+        if((y  >= leftTopXY.y)&&(x-1>= leftTopXY.x)&&(map[y  ][x-1].type== FieldType.MONSTER)) map[y][x].saperNum++;
+        if((y-1>= leftTopXY.y)&&(x  >= leftTopXY.x)&&(map[y-1][x  ].type== FieldType.MONSTER)) map[y][x].saperNum++;
+        if((y-1>= leftTopXY.y)&&(x+1< rightBotXY.x)&&(map[y-1][x+1].type== FieldType.MONSTER)) map[y][x].saperNum++;
+        if((y+1< rightBotXY.y)&&(x-1>= leftTopXY.x)&&(map[y+1][x-1].type== FieldType.MONSTER)) map[y][x].saperNum++;
+        if((y+1< rightBotXY.y)&&(x+1< rightBotXY.x)&&(map[y+1][x+1].type== FieldType.MONSTER)) map[y][x].saperNum++;
+        if((y  >= leftTopXY.y)&&(x+1< rightBotXY.x)&&(map[y  ][x+1].type== FieldType.MONSTER)) map[y][x].saperNum++;
+        if((y+1< rightBotXY.y)&&(x  >= leftTopXY.x)&&(map[y+1][x  ].type== FieldType.MONSTER)) map[y][x].saperNum++;
     }
 
     void createMineField(Point leftTopXY, Point rightBotXY, int countMines){

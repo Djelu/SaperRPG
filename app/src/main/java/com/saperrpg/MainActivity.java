@@ -9,6 +9,8 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.MotionEvent;
 
+import com.saperrpg.Parameters.Pars;
+
 public class MainActivity extends Activity {
 
     private GLSurfaceView glSurfaceView;
@@ -23,6 +25,9 @@ public class MainActivity extends Activity {
         }
         Point view = new Point();
         getWindowManager().getDefaultDisplay().getSize(view);
+
+        int logProcCount = Runtime.getRuntime().availableProcessors();
+        Pars.threadsCount = logProcCount>2 ?logProcCount-1 : 2;
 
         glSurfaceView = new GLSurfaceView(this);
         glSurfaceView.setEGLContextClientVersion(2);
